@@ -4,9 +4,9 @@
 **Grupo:** `T04` (`1_12_5906_T04_2026_2`)  
 **Docente:** Adriana María Iglesias Solano  
 **Equipo:** **InfraCore**  
-- **Osvaldo Navarro** (Código: `2024114082`)  
-- **Juan Jiménez** (Código: `2024114105`)  
-- **Roberto Rueda** (Código: `2024114139`)  
+- **Osvaldo Navarro** (Código: `202511272697`)  
+- **Juan Jiménez** (Código: `202411263090`)  
+- **Roberto Rueda** (Código: `202511272804`)  
 
 ## 1. Descripción del Proyecto
 Prototipo web desarrollado bajo la metodología **Spec-Driven Development (SDD) + IA** para organizar las incidencias de infraestructura de la Universidad Simón Bolívar (Caso **ReparaCampus**). Implementa en servidor las cinco funcionalidades (`RF01` a `RF05`) vinculadas a las especificaciones `S01` a `S05` ubicadas en `specs/`.
