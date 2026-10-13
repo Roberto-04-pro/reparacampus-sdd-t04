@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid-2">
+    <div class="card">
+        <h2>Iniciar Sesión en ReparaCampus</h2>
+        <p style="font-size:0.9rem; color:#475569; margin-bottom:14px;">
+            Autenticación verificada en servidor con hash <code>PBKDF2-SHA256</code>. El rol e identidad se obtienen exclusivamente de la sesión activa.
+        </p>
+        <form method="post" action="{{ url_for('main.login') }}">
+            <div class="form-group">
+                <label for="username">Usuario / Código de Cuenta</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Ej. S01, C01, T01" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Ingresar al Sistema</button>
+        </form>
+    </div>
+    <div class="card">
+        <h2>Cuentas Ficticias del Prototipo (Seed)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Actor / Rol</th>
+                    <th>Nombre</th>
+                    <th>Contraseña</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for uid, uname, nombre, pw, rol, act in cuentas %}
+                <tr>
+                    <td><strong>{{ uid }}</strong></td>
+                    <td><span class="badge est-ASIGNADA">{{ rol }}</span></td>
+                    <td>{{ nombre }}</td>
+                    <td><code>{{ pw }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

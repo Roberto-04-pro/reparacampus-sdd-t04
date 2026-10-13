@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="border:none; margin:0; padding:0;">
+            {% if user.rol == 'SOLICITANTE' %}Mis Incidencias Reportadas ({{ user.id }})
+            {% elif user.rol == 'TECNICO' %}Mis Incidencias Asignadas ({{ user.id }})
+            {% else %}Todas las Incidencias del Campus (Vista Coordinador){% endif %}
+        </h2>
+        {% if user.rol == 'SOLICITANTE' %}
+        <a href="{{ url_for('main.nueva_incidencia') }}" class="btn btn-success">+ Nueva Incidencia</a>
+        {% endif %}
+    </div>
+
+    <form method="get" action="{{ url_for('main.listado_incidencias') }}" style="display:flex; gap:12px; align-items:flex-end; background:#f8fafc; padding:12px; border-radius:6px; margin-bottom:14px;">
+        <div style="flex:1;">
+            <label style="font-size:0.8rem; font-weight:600;">Filtrar por Estado:</label>
+            <select name="estado" class="form-control">
+                <option value="">-- Todos los estados --</option>
+                {% for est in estados %}
+                <option value="{{ est }}" {% if filtro_estado == est %}selected{% endif %}>{{ est }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex:1;">
+            <label style="font-size:0.8rem; font-weight:600;">Filtrar por Prioridad:</label>
+            <select name="prioridad" class="form-control">
+                <option value="">-- Todas las prioridades --</option>
+                {% for prio in prioridades %}
+                <option value="{{ prio }}" {% if filtro_prioridad == prio %}selected{% endif %}>{{ prio }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+        <a href="{{ url_for('main.listado_incidencias') }}" class="btn" style="background:#e2e8f0; color:#1e293b;">Limpiar</a>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Ubicación / Categoría</th>
+                <th>Descripción</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Autor</th>
+                <th>Técnico</th>
+                <th>Fecha UTC</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inc in incidencias %}
+            <tr>
+                <td><strong>{{ inc.codigo }}</strong></td>
+                <td>{{ inc.ubicacion }} · <small>{{ inc.categoria }}</small></td>
+                <td>{{ inc.descripcion }}</td>
+                <td><span class="badge prio-{{ inc.prioridad }}">{{ inc.prioridad }}</span></td>
+                <td><span class="badge est-{{ inc.estado }}">{{ inc.estado }}</span></td>
+                <td>{{ inc.autor_id }}</td>
+                <td>{{ inc.tecnico_asignado_id or 'Sin asignar' }}</td>
+                <td><small>{{ inc.fecha_creacion_utc }}</small></td>
+                <td><a href="{{ url_for('main.detalle_incidencia', incidencia_id=inc.id) }}" class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem;">Ver Detalle</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align:center; color:#64748b; padding:20px;">No se encontraron incidencias para los criterios seleccionados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

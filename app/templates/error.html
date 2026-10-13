@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>{{ titulo }}</h2>
+    <p style="margin-bottom:14px;">{{ mensaje }}</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Volver al Inicio</a>
+</div>
+{% endblock %}

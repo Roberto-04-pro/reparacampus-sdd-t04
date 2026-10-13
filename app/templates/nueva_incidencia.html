@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Registrar Nueva Incidencia de Infraestructura (RF01)</h2>
+    <p style="font-size:0.88rem; color:#475569; margin-bottom:14px;">
+        Todos los campos son obligatorios. El sistema calculará automáticamente la prioridad (<code>CRITICA</code>, <code>ALTA</code> o <code>NORMAL</code>) y asignará el estado inicial <code>REGISTRADA</code>.
+    </p>
+    <form method="post" action="{{ url_for('main.nueva_incidencia') }}">
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="ubicacion">Ubicación</label>
+                <select id="ubicacion" name="ubicacion" class="form-control" required>
+                    <option value="">-- Seleccione ubicación --</option>
+                    {% for u in ubicaciones %}
+                    <option value="{{ u }}" {% if form_data.get('ubicacion') == u %}selected{% endif %}>{{ u }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="categoria">Categoría</label>
+                <select id="categoria" name="categoria" class="form-control" required>
+                    <option value="">-- Seleccione categoría --</option>
+                    {% for c in categorias %}
+                    <option value="{{ c }}" {% if form_data.get('categoria') == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="impacto">Impacto Operativo</label>
+                <select id="impacto" name="impacto" class="form-control" required>
+                    <option value="">-- Seleccione impacto --</option>
+                    {% for imp in impactos %}
+                    <option value="{{ imp }}" {% if form_data.get('impacto') == imp %}selected{% endif %}>{{ imp }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="riesgo_personas">¿Existe riesgo para personas?</label>
+                <select id="riesgo_personas" name="riesgo_personas" class="form-control" required>
+                    <option value="">-- Seleccione opción booleana --</option>
+                    <option value="true" {% if form_data.get('riesgo_personas') == 'true' %}selected{% endif %}>Sí (true) — Prioridad CRITICA</option>
+                    <option value="false" {% if form_data.get('riesgo_personas') == 'false' %}selected{% endif %}>No (false)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción detallada del daño (20 a 500 caracteres sin espacios externos)</label>
+            <textarea id="descripcion" name="descripcion" rows="4" class="form-control" placeholder="Describa el daño con al menos 20 caracteres..." required>{{ form_data.get('descripcion', '') }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Registrar Incidencia</button>
+    </form>
+</div>
+{% endblock %}

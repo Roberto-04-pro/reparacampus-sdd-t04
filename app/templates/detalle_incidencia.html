@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid-2">
+    <div class="card">
+        <h2>Incidencia {{ inc.codigo }} · <span class="badge est-{{ inc.estado }}">{{ inc.estado }}</span></h2>
+        <table>
+            <tbody>
+                <tr><th>Código</th><td><strong>{{ inc.codigo }}</strong> (ID #{{ inc.id }})</td></tr>
+                <tr><th>Estado Actual</th><td><span class="badge est-{{ inc.estado }}">{{ inc.estado }}</span></td></tr>
+                <tr><th>Prioridad Calculada</th><td><span class="badge prio-{{ inc.prioridad }}">{{ inc.prioridad }}</span> (Impacto: {{ inc.impacto }}, Riesgo personas: {{ 'Sí' if inc.riesgo_personas else 'No' }})</td></tr>
+                <tr><th>Ubicación y Categoría</th><td>{{ inc.ubicacion }} · {{ inc.categoria }}</td></tr>
+                <tr><th>Solicitante Dueño</th><td>{{ inc.autor_id }} — {{ inc.autor_nombre }}</td></tr>
+                <tr><th>Técnico Asignado</th><td>{{ inc.tecnico_asignado_id or 'Pendiente de asignación' }} {% if inc.tecnico_nombre %}({{ inc.tecnico_nombre }}){% endif %}</td></tr>
+                <tr><th>Fecha Creación (UTC)</th><td>{{ inc.fecha_creacion_utc }}</td></tr>
+                {% if inc.fecha_ultimo_cierre_utc %}
+                <tr><th>Último Cierre (UTC)</th><td>{{ inc.fecha_ultimo_cierre_utc }}</td></tr>
+                {% endif %}
+                <tr><th>Descripción del Reporte</th><td>{{ inc.descripcion }}</td></tr>
+                {% if inc.solucion_actual %}
+                <tr><th>Última Solución Registrada</th><td><strong>{{ inc.solucion_actual }}</strong></td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <div style="margin-top:18px;">
+            <h3>Acciones Permitidas Según Rol y Estado en Servidor</h3>
+
+            {% if user.rol == 'COORDINADOR' and inc.estado == 'REGISTRADA' %}
+            <form method="post" action="{{ url_for('main.ruta_asignar', incidencia_id=inc.id) }}" style="background:#f8fafc; padding:14px; border-radius:6px; border:1px solid #cbd5e1;">
+                <div class="form-group">
+                    <label for="tecnico_id">Asignar a Técnico Activo (RF02):</label>
+                    <select id="tecnico_id" name="tecnico_id" class="form-control" required>
+                        <option value="">-- Seleccione técnico activo --</option>
+                        {% for t in tecnicos %}
+                        <option value="{{ t.id }}">{{ t.id }} — {{ t.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Asignar Técnico y Pasar a ASIGNADA</button>
+            </form>
+            {% endif %}
+
+            {% if user.rol == 'TECNICO' and inc.tecnico_asignado_id == user.id and inc.estado == 'ASIGNADA' %}
+            <form method="post" action="{{ url_for('main.ruta_iniciar', incidencia_id=inc.id) }}">
+                <button type="submit" class="btn btn-warning">Iniciar Atención en Sitio (Pasar a EN_ATENCION)</button>
+            </form>
+            {% endif %}
+
+            {% if user.rol == 'TECNICO' and inc.tecnico_asignado_id == user.id and inc.estado == 'EN_ATENCION' %}
+            <form method="post" action="{{ url_for('main.ruta_solucion', incidencia_id=inc.id) }}" style="background:#f8fafc; padding:14px; border-radius:6px; border:1px solid #cbd5e1;">
+                <div class="form-group">
+                    <label for="solucion">Registrar Solución Técnica (20 a 800 caracteres, RF03):</label>
+                    <textarea id="solucion" name="solucion" rows="3" class="form-control" required placeholder="Describa la solución aplicada (20 a 800 caracteres)..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Registrar Solución y Pasar a PENDIENTE_VALIDACION</button>
+            </form>
+            {% endif %}
+
+            {% if user.rol == 'SOLICITANTE' and inc.autor_id == user.id and inc.estado == 'PENDIENTE_VALIDACION' %}
+            <div style="background:#f8fafc; padding:14px; border-radius:6px; border:1px solid #cbd5e1;">
+                <form method="post" action="{{ url_for('main.ruta_confirmar', incidencia_id=inc.id) }}" style="margin-bottom:14px;">
+                    <button type="submit" class="btn btn-success">✓ Confirmar Solución y Cerrar Incidencia (CERRADA)</button>
+                </form>
+                <form method="post" action="{{ url_for('main.ruta_rechazar', incidencia_id=inc.id) }}">
+                    <div class="form-group">
+                        <label for="motivo_rechazo">O Rechazar Solución indicando motivo (10 a 300 caracteres, RF04):</label>
+                        <textarea id="motivo_rechazo" name="motivo" rows="2" class="form-control" required placeholder="Explique por qué el daño sigue presente (10 a 300 caracteres)..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger">✕ Rechazar Solución (Volver a EN_ATENCION con {{ inc.tecnico_asignado_id }})</button>
+                </form>
+            </div>
+            {% endif %}
+
+            {% if user.rol == 'SOLICITANTE' and inc.autor_id == user.id and inc.estado == 'CERRADA' %}
+            <form method="post" action="{{ url_for('main.ruta_reabrir', incidencia_id=inc.id) }}" style="background:#fff7ed; padding:14px; border-radius:6px; border:1px solid #fdba74;">
+                <div class="form-group">
+                    <label for="motivo_reapertura">Reabrir Incidencia (Permitido dentro de las 48h UTC desde el último cierre, motivo 10 a 300 chars):</label>
+                    <textarea id="motivo_reapertura" name="motivo" rows="2" class="form-control" required placeholder="Indique el motivo de reapertura (10 a 300 caracteres)..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-warning">↺ Solicitar Reapertura (Volver a EN_ATENCION con {{ inc.tecnico_asignado_id }})</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Historial Inmutable de Eventos y Trazabilidad (RF05)</h2>
+        <p style="font-size:0.84rem; color:#64748b; margin-bottom:12px;">
+            Registro de solo adición (append-only). Conserva todas las transiciones, soluciones propuestas, motivos de rechazo, cierres y reaperturas.
+        </p>
+        {% for ev in inc.historial %}
+        <div class="timeline-item">
+            <div class="timeline-meta">
+                <strong>#{{ loop.index }} · {{ ev.accion }}</strong> | {{ ev.fecha_utc }} | Autor: <strong>{{ ev.autor_id }}</strong> ({{ ev.autor_rol }})
+            </div>
+            <div style="font-size:0.88rem; margin-bottom:4px;">
+                Transición: <code>{{ ev.estado_anterior or 'INICIO' }}</code> → <strong><code>{{ ev.estado_nuevo }}</code></strong>
+            </div>
+            {% if ev.detalle %}
+            <div style="font-size:0.88rem; color:#334155;">{{ ev.detalle }}</div>
+            {% endif %}
+            {% if ev.solucion_propuesta %}
+            <div style="font-size:0.85rem; color:#0f2942; margin-top:4px; background:#e0f2fe; padding:6px 8px; border-radius:4px;">
+                <strong>Solución registrada:</strong> {{ ev.solucion_propuesta }}
+            </div>
+            {% endif %}
+            {% if ev.motivo %}
+            <div style="font-size:0.85rem; color:#991b1b; margin-top:4px; background:#fee2e2; padding:6px 8px; border-radius:4px;">
+                <strong>Motivo registrado:</strong> {{ ev.motivo }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

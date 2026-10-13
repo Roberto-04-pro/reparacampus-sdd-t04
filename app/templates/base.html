@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ReparaCampus · Universidad Simón Bolívar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <div>
+                <h1>ReparaCampus · USB</h1>
+                <span class="sub">Gestión de Incidencias de Infraestructura · Equipo InfraCore (T04)</span>
+            </div>
+        </div>
+        {% if user %}
+        <nav class="nav-links">
+            <a href="{{ url_for('main.listado_incidencias') }}">Incidencias</a>
+            {% if user.rol == 'SOLICITANTE' %}
+            <a href="{{ url_for('main.nueva_incidencia') }}">+ Registrar Incidencia</a>
+            {% endif %}
+            {% if user.rol == 'COORDINADOR' %}
+            <a href="{{ url_for('main.ruta_tablero') }}">Tablero Coordinador</a>
+            {% endif %}
+            <span class="user-pill">{{ user.id }} · {{ user.nombre }} ({{ user.rol }})</span>
+            <a href="{{ url_for('main.logout') }}">Cerrar sesión</a>
+        </nav>
+        {% endif %}
+    </header>
+    <main class="container">
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% if error_mensaje %}
+            <div class="alert alert-error">{{ error_mensaje }}</div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

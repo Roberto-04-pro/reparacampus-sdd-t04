@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Tablero de Control del Coordinador de Mantenimiento (RF05)</h2>
+    <div class="grid-4">
+        <div class="kpi-box">
+            <div class="kpi-val">{{ metricas.total }}</div>
+            <div class="kpi-lbl">Total Incidencias</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-val" style="color:#16a34a;">{{ metricas.porcentaje_cierre }}</div>
+            <div class="kpi-lbl">Porcentaje de Cierre</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-val" style="color:#dc2626;">{{ metricas.criticas_no_cerradas_cantidad }}</div>
+            <div class="kpi-lbl">CRITICA No Cerradas</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-val">{{ metricas.cerradas }}</div>
+            <div class="kpi-lbl">Incidencias CERRADAS</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div>
+            <h3>Cantidades por Estado</h3>
+            <table>
+                <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+                <tbody>
+                    {% for est, cnt in metricas.por_estado.items() %}
+                    <tr>
+                        <td><span class="badge est-{{ est }}">{{ est }}</span></td>
+                        <td><strong>{{ cnt }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h3>Cantidades por Prioridad</h3>
+            <table>
+                <thead><tr><th>Prioridad</th><th>Cantidad</th></tr></thead>
+                <tbody>
+                    {% for prio, cnt in metricas.por_prioridad.items() %}
+                    <tr>
+                        <td><span class="badge prio-{{ prio }}">{{ prio }}</span></td>
+                        <td><strong>{{ cnt }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Incidencias con Prioridad CRITICA No Cerradas ({{ metricas.criticas_no_cerradas_cantidad }})</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Ubicación</th>
+                <th>Categoría</th>
+                <th>Estado Actual</th>
+                <th>Solicitante</th>
+                <th>Técnico Asignado</th>
+                <th>Descripción</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in metricas.criticas_no_cerradas %}
+            <tr>
+                <td><strong>{{ c.codigo }}</strong></td>
+                <td>{{ c.ubicacion }}</td>
+                <td>{{ c.categoria }}</td>
+                <td><span class="badge est-{{ c.estado }}">{{ c.estado }}</span></td>
+                <td>{{ c.autor_id }}</td>
+                <td>{{ c.tecnico_asignado_id or 'Sin asignar' }}</td>
+                <td>{{ c.descripcion }}</td>
+                <td><a href="{{ url_for('main.detalle_incidencia', incidencia_id=c.id) }}" class="btn btn-primary" style="padding:4px 10px; font-size:0.8rem;">Gestionar</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align:center; color:#64748b;">No hay incidencias CRITICA pendientes de cierre.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
