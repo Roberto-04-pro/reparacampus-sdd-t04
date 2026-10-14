@@ -33,4 +33,4 @@ La Coordinación de Mantenimiento de la Universidad Simón Bolívar enfrenta des
 3. **Pregunta 3 (Detección de reportes duplicados sobre la misma ubicación y categoría):**  
    *Cuando dos solicitantes distintos (p. ej. `S01` y `S02`) reportan el mismo daño físico en `LAB-01` y categoría `ELECTRICIDAD` con pocos minutos de diferencia, ¿debe el sistema permitir ambos registros independientes o advertir al segundo solicitante?*  
    - **Estado:** Pendiente de definición con el cliente.  
-   - **Supuesto adoptado en el prototipo (v1.0):** Debido a la regla de privacidad que impide a un solicitante leer reportes de otros solicitantes (`RF05`), cada reporte válido genera su propio código secuencial (`INC-0001`, `INC-0002`, etc.) de forma independiente.
+   - **Supuesto adoptado en el prototipo (v1.0):** Debido a la regla de privacidad que impide a un solicitante leer reportes de otros solicitantes (`RF05`), cada reporte válido genera su propio código secuencial (`INC-0001`, `INC-0002`, etc.) de forma independiente. 
